@@ -33,34 +33,24 @@ def get_distance(options, departure_station, destination_station)
   sleep 1
   p "----------------------------------------"
   p "Google Map: #{driver.current_url}"
-  route_info = driver.execute_script('''
-
+  info_arr = driver.execute_script('''
     info_arr = [];
     if (document.getElementById("section-directions-trip-travel-mode-0")){
-      var card_icon = document.getElementById("section-directions-trip-travel-mode-0")
-      var route_info = card_icon.parentElement.innerText;
-      var icon_info = card_icon.getAttribute("aria-label")
-      info_arr.push(route_info, icon_info);
-      
+      var card_icons = document.querySelectorAll("[id|=section-directions-trip-travel-mode]")
+      card_icons.forEach(icon=>
+        info_arr.push([icon.parentElement.innerText, icon.getAttribute("aria-label")])
+        )
     } else {
       info_arr = "取得失敗"
     }
     
     return info_arr;
     ''')
-    info_arr = route_info[0].split("\n")
+    # byebug
     p "----------------------------------------"
-    info_arr.each{|a|p a}
-    p "----------------------------------------"
-    if (route_info[1] === "  公共交通機関  ")
-      time = Time.now.strftime("%H:%M")
-      p "現在時刻 : #{time}"
-      
-      departure_time = info_arr[1].split(" ")[0].split(":")[1].to_i - time.split(":")[1].to_i
-      if (departure_time.to_i < 0)
-        departure_time = departure_time.to_i + 60
-      end
-    p "出発まで#{departure_time}分"
+  info_arr.each do |info|
+    p info[1]
+    info[0].split("\n").each {|a|p a}
     p "----------------------------------------"
   end
 end
